@@ -1,0 +1,7 @@
+- name: Restart application service
+  hosts: app_servers
+  tasks:
+    - name: Restart myapp
+      service:
+        name: myapp
+        state: restarted

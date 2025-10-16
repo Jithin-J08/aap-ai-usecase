@@ -1,0 +1,11 @@
+- name: Cleanup disk space
+  hosts: app_servers
+  tasks:
+    - name: Remove old log files
+      file:
+        path: /var/log/myapp/*.log
+        state: absent
+
+    - name: Notify developers
+      debug:
+        msg: "Disk cleaned up on {{ inventory_hostname }}"

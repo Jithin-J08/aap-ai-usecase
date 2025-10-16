@@ -1,0 +1,4 @@
+all:
+  hosts:
+    dev-app01:
+      ansible_host: 10.0.1.10

@@ -1,0 +1,12 @@
+# disk_alert_rulebook.yml
+---
+sources:
+  - ansible.eda.file:
+      path: /tmp/events.json   # later replace with Splunk/Kafka
+
+rules:
+  - name: Handle disk usage alerts
+    condition: event.payload.disk_usage > 90
+    actions:
+      - run_job_template:
+          name: "disk_cleanup_playbook"

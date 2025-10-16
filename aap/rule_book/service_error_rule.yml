@@ -1,0 +1,11 @@
+---
+sources:
+  - ansible.eda.file:
+      path: /tmp/events.json
+
+rules:
+  - name: Service crashed
+    condition: event.payload.error contains "service unavailable"
+    actions:
+      - run_job_template:
+          name: "restart_service_job"

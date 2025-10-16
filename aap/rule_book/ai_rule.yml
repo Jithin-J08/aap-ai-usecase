@@ -1,0 +1,11 @@
+---
+sources:
+  - ansible.eda.file:
+      path: /tmp/events.json
+
+rules:
+  - name: AI-based remediation
+    condition: event.payload.message is defined
+    actions:
+      - run_job_template:
+          name: "{{ lookup('my_ai.analyze', event.payload.message) }}"
