@@ -1,0 +1,28 @@
+---
+- name: Apply latest patches on RHEL
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Apply all available updates
+      yum:
+        name: '*'
+        state: latest
+
+    - name: Reboot if kernel updated
+      reboot:
+        msg: "Rebooting after patching"
+        connect_timeout: 5
+        reboot_timeout: 600
+
+    - name: Verify patch level after reboot
+      command: yum check-update
+      register: final_check
+      ignore_errors: true
+
+    - name: Display final status
+      debug:
+        msg: >
+          System {{ inventory_hostname }} {{
+          'still has updates' if final_check.rc == 100
+          else 'is now fully patched' }}.

@@ -1,0 +1,22 @@
+---
+- name: Check if RHEL VM is up to date
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Check for available package updates
+      command: yum check-update
+      register: yum_update
+      ignore_errors: true
+
+    - name: Set patch_needed fact
+      set_fact:
+        patch_needed: "{{ 'yes' if yum_update.rc == 100 else 'no' }}"
+      # yum check-update returns 100 if updates are available, 0 if not
+
+    - name: Print patch status
+      debug:
+        msg: >
+          System {{ inventory_hostname }} is {{
+          'NOT up-to-date, patching required' if patch_needed == 'yes'
+          else 'already up-to-date' }}.
