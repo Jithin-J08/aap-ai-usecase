@@ -1,6 +1,6 @@
 ---
 - name: Check if RHEL VM is up to date
-  hosts: all
+  hosts: 10.2.2.135
   become: true
   gather_facts: false
   tasks:
