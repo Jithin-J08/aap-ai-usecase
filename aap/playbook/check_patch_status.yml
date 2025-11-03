@@ -4,6 +4,25 @@
   become: true
   gather_facts: false
   tasks:
+
+    - name: Test outbound HTTPS connectivity
+      ansible.builtin.uri:
+        url: https://www.redhat.com
+        method: GET
+        return_content: no
+        timeout: 10
+      register: internet_check
+      ignore_errors: yes
+
+    - name: Report internet status
+      ansible.builtin.debug:
+        msg: >
+          {% if internet_check.status is defined %}
+            ✅ Internet is reachable (HTTP {{ internet_check.status }})
+          {% else %}
+            ❌ No internet connectivity or blocked by proxy/firewall
+          {% endif %}
+  
     - name: Check for available package updates
       command: yum check-update
       register: yum_update
