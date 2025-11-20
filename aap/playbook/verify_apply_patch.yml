@@ -1,0 +1,48 @@
+---
+- name: Check if RHEL VM is up to date
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+
+    - name: Check for available package updates
+      command: yum check-update
+      register: yum_update
+      ignore_errors: true
+
+    - name: Set patch_needed fact
+      set_fact:
+        patch_needed: "{{ 'yes' if yum_update.rc == 100 else 'no' }}"
+      # yum check-update returns 100 if updates are available, 0 if not
+
+    - name: Print patch status
+      debug:
+        msg: >
+          System {{ inventory_hostname }} is {{
+          'NOT up-to-date, patching required' if patch_needed == 'yes'
+          else 'already up-to-date' }}.
+
+    - name: Check if kernel update is required
+      shell: "needs-restarting -r"
+      register: kernel_update_check
+      failed_when: kernel_update_check.rc not in [0, 1]
+      when: patch_needed == 'yes'
+
+    - name: Reboot if kernel updated
+      reboot:
+        msg: "Rebooting after kernel patching"
+        connect_timeout: 5
+        reboot_timeout: 600
+      when: kernel_update_check.rc == 1
+
+    - name: Verify patch level after reboot
+      command: yum check-update
+      register: final_check
+      ignore_errors: true
+
+    - name: Display final status
+      debug:
+        msg: >
+          System {{ inventory_hostname }} {{
+          'still has updates' if final_check.rc == 100
+          else 'is now fully patched' }}.
