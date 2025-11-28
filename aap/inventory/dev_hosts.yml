@@ -2,4 +2,4 @@ all:
   children:
     rhel_servers:
       hosts:
-        13-221-81-46
+        13.221.81.46
